@@ -159,7 +159,7 @@ class ProtobufParser(object):
         p[0].deriveLex()
 
     def p_field_directive(self, p):
-        '''field_directive : LBRACK NAME EQ rvalue RBRACK'''
+        '''field_directive : LBRACK option_name EQ rvalue RBRACK'''
         p[0] = FieldDirective(Name(LU.i(p, 2)), LU.i(p,4))
         self.lh.set_parse_object(p[0], p)
 
@@ -184,6 +184,17 @@ class ProtobufParser(object):
                    | dotname DOT NAME'''
         if len(p) == 2:
             p[0] = [LU(p,1)]
+        else:
+            p[0] = p[1] + [LU(p,3)]
+
+    def p_option_name(self, p):
+        '''option_name : NAME
+                   | LPAR option_name RPAR
+                   | option_name DOT NAME'''
+        if len(p) == 2:
+            p[0] = [LU(p,1)]
+        elif p[1] == '(':
+            p[0] = [LU(p,2)]
         else:
             p[0] = p[1] + [LU(p,3)]
 
@@ -350,7 +361,7 @@ class ProtobufParser(object):
 
     # option_directive = OPTION_ - ident("optionName") + EQ + quotedString("optionValue") + SEMI
     def p_option_directive(self, p):
-        '''option_directive : OPTION NAME EQ option_rvalue SEMI'''
+        '''option_directive : OPTION option_name EQ option_rvalue SEMI'''
         p[0] = OptionStatement(Name(LU.i(p, 2)), LU.i(p,4))
         self.lh.set_parse_object(p[0], p)
 
