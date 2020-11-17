@@ -154,6 +154,27 @@ class MyVisitor(m.Visitor):
         self.prefixize(obj.name, obj.name.value)
         return True
 
+
+    def visit_OneofFieldDefinition(self, obj):
+        '''New field defined in a message, check type, if is name, prefixize.'''
+        if self.verbose > 4:
+            print "\tField: name=%s, lex=%s parent=%s" % (obj.name, obj.lexspan, obj.parent!=None)
+
+        if isinstance(obj.ftype, m.Name):
+            self.prefixize(obj.ftype, obj.ftype.value)
+            self.sanitizeName(obj.ftype)
+
+        self.sanitizeName(obj.name)
+        return True
+
+    def visit_OneofDefinition(self, obj):
+        '''New one definition, refactor name'''
+        if self.verbose > 3:
+            print "Oneof, [%s] body=%s\n\n" % (obj.name, obj.body)
+
+        self.prefixize(obj.name, obj.name.value)
+        return True
+
     def visit_MessageDefinition(self, obj):
         '''New message, refactor name, w.r.t. path'''
         if self.verbose > 3:

@@ -248,6 +248,40 @@ class EnumDefinition(SourceElement):
             self.v(self.name, visitor)
             self.v(self.body, visitor)
 
+class OneofFieldDefinition(SourceElement):
+    def __init__(self, ftype, name, fieldId, fieldDirective, linespan=None, lexspan=None, p=None):
+        super(OneofFieldDefinition, self).__init__(linespan=linespan, lexspan=lexspan, p=p)
+        self._fields += ['ftype', 'name', 'fieldId', 'fieldDirective']
+        self.name = name
+        Base.p(self.name, self)
+        self.ftype = ftype
+        Base.p(self.ftype, self)
+        self.fieldId = fieldId
+        Base.p(self.fieldId, self)
+        self.fieldDirective = fieldDirective
+        Base.p(self.fieldDirective, self)
+
+    def accept(self, visitor):
+        if visitor.visit_FieldDefinition(self):
+            self.v(self.name, visitor)
+            self.v(self.ftype, visitor)
+            self.v(self.fieldId, visitor)
+            self.v(self.fieldDirective, visitor)
+
+class OneofDefinition(SourceElement):
+    def __init__(self, name, body, linespan=None, lexspan=None, p=None):
+        super(OneofDefinition, self).__init__(linespan=linespan, lexspan=lexspan, p=p)
+        self._fields += ['name', 'body']
+        self.name = name
+        Base.p(self.name, self)
+        self.body = body
+        Base.p(self.body, self)
+
+    def accept(self, visitor):
+        if visitor.visit_OneofDefinition(self):
+            self.v(self.name, visitor)
+            self.v(self.body, visitor)
+
 class MessageDefinition(SourceElement):
     def __init__(self, name, body, linespan=None, lexspan=None, p=None):
         super(MessageDefinition, self).__init__(linespan=linespan, lexspan=lexspan, p=p)

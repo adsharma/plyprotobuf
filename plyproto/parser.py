@@ -11,7 +11,7 @@ class ProtobufLexer(object):
     keywords = ('double', 'float', 'int32', 'int64', 'uint32', 'uint64', 'sint32', 'sint64',
                 'fixed32', 'fixed64', 'sfixed32', 'sfixed64', 'bool', 'string', 'bytes',
                 'message', 'required', 'optional', 'repeated', 'enum', 'extensions', 'max', 'extends', 'extend',
-                'to', 'package', 'service', 'rpc', 'returns', 'true', 'false', 'option', 'import')
+                'to', 'package', 'service', 'rpc', 'returns', 'true', 'false', 'option', 'import', 'oneof')
 
     tokens = [
         'NAME',
@@ -258,6 +258,40 @@ class ProtobufParser(object):
         p[0] = EnumDefinition(Name(LU.i(p, 2)), LU.i(p,4))
         self.lh.set_parse_object(p[0], p)
 
+    # Root of the oneof field declaration.
+    def p_oneof_field(self, p):
+        '''oneof_field : field_type field_name EQ field_id field_directive_times SEMI'''
+        p[0] = OneofFieldDefinition(LU.i(p,1), LU.i(p,2), LU.i(p, 4), LU.i(p,5))
+        self.lh.set_parse_object(p[0], p)
+
+    def p_oneof_body_part(self, p):
+        '''oneof_body_part : oneof_field
+                          | option_directive'''
+        p[0] = p[1]
+
+    def p_oneof_body(self, p):
+        '''oneof_body : oneof_body_part
+                    | oneof_body oneof_body_part'''
+        if len(p) == 2:
+            p[0] = [p[1]]
+        else:
+            p[0] = p[1] + [p[2]]
+
+    def p_oneof_body_opt(self, p):
+        '''oneof_body_opt : empty'''
+        p[0] = []
+
+    def p_oneof_body_opt2(self, p):
+        '''oneof_body_opt : oneof_body'''
+        p[0] = p[1]
+
+
+    # Root of the oneof declaration.
+    def p_oneof_definition(self, p):
+        '''oneof_definition : ONEOF NAME LBRACE oneof_body_opt RBRACE'''
+        p[0] = OneofDefinition(Name(LU.i(p, 2)), LU.i(p,4))
+        self.lh.set_parse_object(p[0], p)
+
     def p_extensions_to(self, p):
         '''extensions_to : MAX'''
         p[0] = ExtensionsMax()
@@ -282,6 +316,7 @@ class ProtobufParser(object):
     def p_message_body_part(self, p):
         '''message_body_part : field_definition
                            | enum_definition
+                           | oneof_definition
                            | message_definition
                            | extensions_definition
                            | message_extension'''
