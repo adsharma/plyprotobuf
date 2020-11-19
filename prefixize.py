@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """
 Adds ObjectiveC prefixes to the Protocol Buffers entities.
 Used with Protoc objective C compiler: https://github.com/alexeyxo/protobuf-objc
@@ -83,7 +83,7 @@ class MyVisitor(m.Visitor):
             n = str(obj.value)
             if self.isNameInvalid(n):
                 if self.verbose>1:
-                    print "!!Invalid name: %s, %s" % (n, obj)
+                    print("!!Invalid name: %s, %s" % (n, obj))
                 self.replace(obj.value, 'x'+n)
 
         elif isinstance(obj, m.LU):
@@ -130,7 +130,7 @@ class MyVisitor(m.Visitor):
     def visit_FieldDefinition(self, obj):
         '''New field defined in a message, check type, if is name, prefixize.'''
         if self.verbose > 4:
-            print "\tField: name=%s, lex=%s parent=%s" % (obj.name, obj.lexspan, obj.parent!=None)
+            print("\tField: name=%s, lex=%s parent=%s" % (obj.name, obj.lexspan, obj.parent!=None))
 
         if isinstance(obj.ftype, m.Name):
             self.prefixize(obj.ftype, obj.ftype.value)
@@ -141,7 +141,7 @@ class MyVisitor(m.Visitor):
 
     def visit_EnumFieldDefinition(self, obj):
         if self.verbose > 4:
-            print "\tEnumField: name=%s, %s" % (obj.name, obj)
+            print("\tEnumField: name=%s, %s" % (obj.name, obj))
 
         self.sanitizeName(obj.name)
         return True
@@ -149,7 +149,7 @@ class MyVisitor(m.Visitor):
     def visit_EnumDefinition(self, obj):
         '''New enum definition, refactor name'''
         if self.verbose > 3:
-            print "Enum, [%s] body=%s\n\n" % (obj.name, obj.body)
+            print("Enum, [%s] body=%s\n\n" % (obj.name, obj.body))
 
         self.prefixize(obj.name, obj.name.value)
         return True
@@ -158,7 +158,7 @@ class MyVisitor(m.Visitor):
     def visit_OneofFieldDefinition(self, obj):
         '''New field defined in a message, check type, if is name, prefixize.'''
         if self.verbose > 4:
-            print "\tField: name=%s, lex=%s parent=%s" % (obj.name, obj.lexspan, obj.parent!=None)
+            print("\tField: name=%s, lex=%s parent=%s" % (obj.name, obj.lexspan, obj.parent!=None))
 
         if isinstance(obj.ftype, m.Name):
             self.prefixize(obj.ftype, obj.ftype.value)
@@ -170,7 +170,7 @@ class MyVisitor(m.Visitor):
     def visit_OneofDefinition(self, obj):
         '''New one definition, refactor name'''
         if self.verbose > 3:
-            print "Oneof, [%s] body=%s\n\n" % (obj.name, obj.body)
+            print("Oneof, [%s] body=%s\n\n" % (obj.name, obj.body))
 
         self.prefixize(obj.name, obj.name.value)
         return True
@@ -178,7 +178,7 @@ class MyVisitor(m.Visitor):
     def visit_MessageDefinition(self, obj):
         '''New message, refactor name, w.r.t. path'''
         if self.verbose > 3:
-            print "Message, [%s] lex=%s body=|%s|\n" % (obj.name, obj.lexspan, obj.body)
+            print("Message, [%s] lex=%s body=|%s|\n" % (obj.name, obj.lexspan, obj.body))
 
         self.prefixize(obj.name, str(obj.name.value))
         self.sanitizeName(obj.name)
@@ -187,7 +187,7 @@ class MyVisitor(m.Visitor):
     def visit_MessageExtension(self, obj):
         '''New message extension, refactor'''
         if self.verbose > 3:
-            print "MessageEXT, [%s] body=%s\n\n" % (obj.name, obj.body)
+            print("MessageEXT, [%s] body=%s\n\n" % (obj.name, obj.body))
 
         self.prefixize(obj.name, obj.name.value)
         self.sanitizeName(obj.name)
@@ -231,7 +231,7 @@ if __name__ == '__main__':
     # Load the file and instantiate the visitor object.
     p = plyproto.parser.ProtobufAnalyzer()
     if args.verbose>0:
-        print " [-] Processing file: %s" % (args.file)
+        print(" [-] Processing file: %s" % (args.file))
     
     # Start the parsing.
     try:
@@ -248,7 +248,7 @@ if __name__ == '__main__':
         
         # If here, probably no exception occurred.
         if args.echo:
-            print v.content
+            print(v.content)
         if args.outdir != None and len(args.outdir)>0 and v.statementsChanged>0:
             outfile = args.outdir + '/' + v.prefix + os.path.basename(args.file).capitalize()
             with open(outfile, 'w') as f:
@@ -258,12 +258,12 @@ if __name__ == '__main__':
                 f.write(v.content)
                 
         if args.verbose>0:
-            print " [-] Processing finished, changed=%d" % v.statementsChanged
+            print(" [-] Processing finished, changed=%d" % v.statementsChanged)
     except Exception as e:
-        print "    Error occurred! file[%s]" % (args.file), e
+        print("    Error occurred! file[%s]" % (args.file), e)
         if args.verbose>1:
-            print '-'*60
+            print('-'*60)
             traceback.print_exc(file=sys.stdout)
-            print '-'*60
+            print('-'*60)
         sys.exit(1)
         
